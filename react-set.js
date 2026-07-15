@@ -40,3 +40,35 @@ async function typeSlowly(el, value) {
   }
   
   typeSlowly(document.querySelector('[data-slate-string="true"]'),'ASDF')
+
+
+
+function insertIntoSlate(elem,text) {
+	try{
+  const editor = elem.querySelector('[data-slate-editor="true"],[aria-labelledby^="prompt-autoGradableResponseId"]')||elem;
+  editor.focus();
+
+  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+    window.HTMLElement.prototype, 'innerText'
+  );
+
+  // Simulate clipboard paste — Slate handles paste events well
+  const dt = new DataTransfer();
+  dt.setData('text/plain', text);
+  editor.dispatchEvent(new ClipboardEvent('paste', {
+    clipboardData: dt,
+    bubbles: true,
+    cancelable: true
+  }));
+  
+
+  const nativeSetter = Object.getOwnPropertyDescriptor(
+    window.HTMLTextAreaElement.prototype, 'value'
+  ).set;
+  nativeSetter.call(editor, text);
+  editor.dispatchEvent(new Event('input', { bubbles: true }));
+}catch(e){
+	console.warn(e);
+}
+
+}
